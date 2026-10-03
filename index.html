@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>سموث — نظام متابعة شكاوى العملاء</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;900&display=swap">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%236CC8BF'/%3E%3Ccircle cx='16' cy='16' r='7' fill='%23D42C31'/%3E%3Ccircle cx='13.5' cy='13.5' r='3.5' fill='%23EF93B9'/%3E%3C/svg%3E">
+<style>
+:root{
+  --turq:#6cc8bf; --turq-d:#3f9f96; --turq-l:#e4f5f3;
+  --red:#d42c31; --pink:#ef93b9; --pink-l:#fdeef4;
+  --bg:#f5f2f1; --panel:#fff; --ink:#23191c; --muted:#857479;
+  --line:#e6dedf; --warn:#b4711c;
+  --f:"Cairo","Segoe UI",system-ui,sans-serif;
+  --sh:0 1px 2px rgba(35,25,28,.05);
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --turq:#6cc8bf; --turq-d:#8fded6; --turq-l:#1d3a37;
+  --red:#f1686c; --pink:#ef93b9; --pink-l:#3a2630;
+  --bg:#151113; --panel:#1f1a1c; --ink:#f2eaec; --muted:#a39297;
+  --line:#332a2d; --warn:#e0a85a; color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --turq:#6cc8bf; --turq-d:#8fded6; --turq-l:#1d3a37;
+  --red:#f1686c; --pink:#ef93b9; --pink-l:#3a2630;
+  --bg:#151113; --panel:#1f1a1c; --ink:#f2eaec; --muted:#a39297;
+  --line:#332a2d; --warn:#e0a85a; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--f);font-size:14px;line-height:1.6;-webkit-text-size-adjust:100%}
+img{max-width:100%}
+[hidden]{display:none!important}
+button,input,select,textarea{font-family:var(--f)}
+:focus-visible{outline:2px solid var(--turq-d);outline-offset:2px}
+.masthead{background:var(--turq);color:#102e2b}
+.mast-in{max-width:1240px;margin:0 auto;padding-inline:18px;padding-block:16px 18px;display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+.logo{font-weight:900;font-size:clamp(23px,4.4vw,32px);color:var(--pink);text-shadow:3px 3px 0 var(--red);line-height:1.1;font-style:italic}
+.brand h1{margin:0;font-size:clamp(13.5px,2.3vw,16px);font-weight:700;color:#0f2e2b}
+.brand p{margin:1px 0 0;font-size:12px;color:#1b4a46;opacity:.85}
+.mast-acts{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.me{font-size:12px;color:#0f2e2b;background:rgba(255,255,255,.55);padding:5px 10px;border-radius:999px}
+.wrap{max-width:1240px;margin:0 auto;padding-inline:18px;padding-block:20px 48px}
+.btn{border:0;border-radius:10px;padding:10px 16px;font-size:13.5px;font-weight:600;cursor:pointer;background:var(--red);color:#fff;box-shadow:var(--sh)}
+.btn:hover{filter:brightness(1.07)}
+.btn:disabled{opacity:.6;cursor:default}
+.btn.soft{background:#fff;color:#0f2e2b}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line);box-shadow:none}
+.btn.turq{background:var(--turq-d);color:#fff}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(142px,1fr));gap:10px;margin-bottom:18px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:13px 15px;min-width:0;position:relative;overflow:hidden}
+.stat b{display:block;font-weight:900;font-size:27px;font-variant-numeric:tabular-nums;line-height:1.2}
+.stat span{font-size:12px;color:var(--muted)}
+.stat::after{content:"";position:absolute;inset-block:0;inset-inline-start:0;width:4px;background:var(--turq)}
+.stat.alert::after{background:var(--red)} .stat.alert b{color:var(--red)}
+.stat.pink::after{background:var(--pink)}
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:16px}
+.toolbar input,.toolbar select{flex:1 1 150px;min-width:0;padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--ink);font-size:13px}
+.seg{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--panel)}
+.seg button{border:0;background:transparent;color:var(--muted);padding:9px 14px;font-size:13px;font-weight:600;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--turq-l);color:var(--turq-d)}
+.board{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;align-items:start}
+@media (max-width:1040px){.board{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:760px){.board{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:520px){.board{grid-template-columns:1fr}}
+.col{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px;min-width:0}
+.col-h{display:flex;align-items:center;gap:8px;margin-bottom:2px}
+.step{width:22px;height:22px;flex:none;border-radius:50%;background:var(--turq-l);color:var(--turq-d);font-size:12px;font-weight:700;display:grid;place-items:center}
+.col h2{margin:0;font-size:13.5px;font-weight:700}
+.col .cnt{margin-inline-start:auto;font-size:11.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.col .who{font-size:11.5px;color:var(--muted);margin:0 0 10px;padding-inline-start:30px}
+.card{display:block;width:100%;text-align:start;background:var(--bg);border:1px solid var(--line);border-inline-start:3px solid var(--turq);border-radius:10px;padding:10px 11px;margin-bottom:8px;cursor:pointer}
+.card:hover{border-color:var(--turq-d)}
+.card[data-p="عالية"]{border-inline-start-color:var(--red)}
+.card[data-p="متوسطة"]{border-inline-start-color:var(--warn)}
+.card .top{display:flex;justify-content:space-between;gap:6px;align-items:center}
+.card .ord{font-size:11.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.pill{font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:999px;background:var(--turq-l);color:var(--turq-d);white-space:nowrap}
+.pill.red{background:var(--pink-l);color:var(--red)}
+.card .nm{font-weight:700;font-size:13.5px;margin:3px 0 1px}
+.card .ty{font-size:12px;color:var(--muted)}
+.age{font-size:11px;margin-top:5px;color:var(--warn);font-weight:600}
+.age.late{color:var(--red)}
+.empty{font-size:12px;color:var(--muted);line-height:1.8;padding:8px 2px}
+dialog{border:1px solid var(--line);border-radius:16px;background:var(--panel);color:var(--ink);padding:0;width:min(620px,94vw);max-height:90vh}
+dialog::backdrop{background:rgba(16,46,43,.55)}
+.dlg{padding:20px;overflow:auto;max-height:90vh}
+.dlg h3{margin:0;font-size:18px;font-weight:700}
+.dlg .hint{color:var(--muted);font-size:12.5px;margin:3px 0 14px}
+label{display:block;font-size:12px;color:var(--muted);margin:12px 0 5px;font-weight:600}
+input,select,textarea{width:100%;font-size:14px;padding:10px 11px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink)}
+textarea{min-height:72px;resize:vertical}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:470px){.row2{grid-template-columns:1fr}}
+.acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+.err{color:var(--red);font-size:12.5px;margin:10px 0 0;font-weight:600}
+.meta{border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-top:14px;font-size:13px;line-height:2}
+.meta div{display:flex;gap:8px;flex-wrap:wrap}
+.meta span{color:var(--muted);min-width:96px}
+.meta b{font-weight:600}
+.timeline{margin-top:16px;border-top:1px solid var(--line);padding-top:12px}
+.timeline h4{margin:0 0 8px;font-size:12px;color:var(--muted);font-weight:700}
+.timeline ul{margin:0;padding:0}
+.timeline li{list-style:none;font-size:12.5px;color:var(--muted);padding-inline-start:16px;position:relative;margin-bottom:7px;line-height:1.7}
+.timeline li::before{content:"";position:absolute;inset-inline-start:0;top:8px;width:7px;height:7px;border-radius:50%;background:var(--turq)}
+.timeline b{color:var(--ink);font-weight:600}
+.flow{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
+.flow i{font-style:normal;font-size:11.5px;padding:4px 9px;border-radius:999px;background:var(--bg);border:1px solid var(--line);color:var(--muted)}
+.flow i.on{background:var(--turq-d);border-color:var(--turq-d);color:#fff;font-weight:700}
+.flow i.past{background:var(--turq-l);border-color:var(--turq-l);color:var(--turq-d)}
+footer{color:var(--muted);font-size:12px;line-height:1.9;margin-top:26px;border-top:1px solid var(--line);padding-top:14px}
+.gate{min-height:100vh;display:grid;place-items:center;padding:24px 18px}
+.gatebox{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:26px;width:min(400px,100%);box-shadow:var(--sh)}
+.gatebox .logo{margin-bottom:6px}
+.gatebox h2{margin:0 0 2px;font-size:17px;font-weight:700}
+.gatebox p.s{margin:0 0 6px;font-size:12.5px;color:var(--muted)}
+.gatebox .btn{width:100%;margin-top:18px;padding:12px}
+.loading{padding:60px 18px;text-align:center;color:var(--muted);font-size:13px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<div id="boot" class="loading">جارٍ التحميل…</div>
+
+<div id="gate" class="gate" hidden>
+  <form class="gatebox" id="loginForm">
+    <div class="logo">Smooth</div>
+    <h2>نظام متابعة شكاوى العملاء</h2>
+    <p class="s">الدخول لفريق خدمة العملاء والعمليات فقط.</p>
+    <label for="email">البريد الإلكتروني</label>
+    <input id="email" type="email" autocomplete="username" required>
+    <label for="pass">كلمة السر</label>
+    <input id="pass" type="password" autocomplete="current-password" required>
+    <p class="err" id="loginErr" hidden></p>
+    <button class="btn" id="loginBtn" type="submit">دخول</button>
+  </form>
+</div>
+
+<div id="app" hidden>
+<header class="masthead">
+  <div class="mast-in">
+    <div class="brand">
+      <div class="logo">Smooth</div>
+      <div>
+        <h1>نظام متابعة شكاوى العملاء</h1>
+        <p>من أول تواصل مع خدمة العملاء حتى إبلاغ القرار وقفل الحالة</p>
+      </div>
+    </div>
+    <div class="mast-acts">
+      <span class="me" id="meBox"></span>
+      <button class="btn" id="addBtn">تسجيل حالة جديدة</button>
+      <button class="btn soft" id="expBtn">تصدير</button>
+      <button class="btn soft" id="outBtn">خروج</button>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="stats" id="stats"></div>
+  <div class="toolbar">
+    <input id="q" placeholder="بحث باسم العميل أو رقم الطلب أو رقم التواصل">
+    <select id="fType"></select>
+    <select id="fPri"><option value="">كل الأولويات</option><option>عالية</option><option>متوسطة</option><option>عادية</option></select>
+    <div class="seg"><button id="vOpen" aria-pressed="true">المفتوحة</button><button id="vAll" aria-pressed="false">الكل</button></div>
+  </div>
+  <div class="board" id="board"></div>
+  <footer>
+    المراحل الخمس هي نفس دورة العمل المتفق عليها: خدمة العملاء تستقبل وتسجل، العمليات تستلم وتتحقق وتصدر القرار، ثم خدمة العملاء تبلّغ العميل وتقفل الحالة.
+    كل انتقال يُسجَّل في سجل الحالة بوقته وباسم من نفّذه، والتحديثات تظهر عند بقية الفريق في نفس اللحظة.
+  </footer>
+</div>
+</div>
+
+<dialog id="dlg"><div class="dlg" id="dlgBody"></div></dialog>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+"use strict";
+firebase.initializeApp({
+  apiKey:"AIzaSyDrIVxA-oiH1sVuY1UvNluSr52CQX07Hn8",
+  authDomain:"smooth-support-b0b2d.firebaseapp.com",
+  projectId:"smooth-support-b0b2d",
+  storageBucket:"smooth-support-b0b2d.firebasestorage.app",
+  messagingSenderId:"1037440740074",
+  appId:"1:1037440740074:web:c28ab57359606db2384593"
+});
+var auth=firebase.auth(), db=firebase.firestore();
+
+var STAGES=[
+ {k:"new",  n:"وصلت لخدمة العملاء", who:"تسجيل بيانات العميل والمشكلة", act:"تحويل الحالة للعمليات"},
+ {k:"ops",  n:"محوّلة للعمليات",     who:"بانتظار استلام فريق العمليات", act:"استلام وبدء التحقق"},
+ {k:"check",n:"العمليات تتحقق",      who:"فحص المشكلة والمستندات",      act:"تسجيل القرار"},
+ {k:"dec",  n:"القرار جاهز",         who:"بانتظار إبلاغ العميل",        act:"تم إبلاغ العميل وقفل الحالة"},
+ {k:"done", n:"مقفولة",              who:"تم إبلاغ العميل بالقرار",     act:""}
+];
+var TYPES=["تلف في منتج","تأخر التسليم","تغيير عنوان التسليم","تغيير رقم التواصل","منتج ناقص","منتج مختلف عن الطلب","طلب استرجاع","استفسار عن الشحنة","أخرى"];
+var ROWS=[], ONLY_OPEN=true, ME="";
+
+function $(id){return document.getElementById(id)}
+function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[c]})}
+function or(v){return v?esc(v):"—"}
+function fmt(t){if(!t)return "—";try{return new Date(t).toLocaleString("ar-EG",{dateStyle:"medium",timeStyle:"short"})}catch(e){return String(t)}}
+function hrs(t){return t?Math.floor((Date.now()-t)/3600000):0}
+function sIdx(k){for(var i=0;i<STAGES.length;i++)if(STAGES[i].k===k)return i;return 0}
+function val(id){var e=$(id);return e?e.value.trim():""}
+
+$("loginForm").addEventListener("submit",function(ev){
+  ev.preventDefault();
+  $("loginErr").hidden=true;$("loginBtn").disabled=true;
+  auth.signInWithEmailAndPassword(val("email"),$("pass").value).catch(function(e){
+    $("loginBtn").disabled=false;
+    var m=e.code==="auth/invalid-credential"||e.code==="auth/wrong-password"||e.code==="auth/user-not-found"
+      ?"البريد أو كلمة السر غير صحيحة.":"تعذّر الدخول. راجع اتصالك بالإنترنت وحاول مرة أخرى.";
+    $("loginErr").textContent=m;$("loginErr").hidden=false;
+  });
+});
+$("outBtn").onclick=function(){auth.signOut()};
+
+auth.onAuthStateChanged(function(u){
+  $("boot").hidden=true;
+  if(!u){$("app").hidden=true;$("gate").hidden=false;$("loginBtn").disabled=false;return}
+  ME=u.email||"";
+  $("meBox").textContent=ME;
+  $("gate").hidden=true;$("app").hidden=false;
+  subscribe();
+});
+
+var unsub=null;
+function subscribe(){
+  if(unsub)return;
+  unsub=db.collection("cases").onSnapshot(function(snap){
+    ROWS=snap.docs.map(function(d){var o=d.data();o.id=d.id;return o});
+    render();
+  },function(){ $("board").innerHTML='<p class="empty">تعذّر تحميل الحالات. حدّث الصفحة.</p>' });
+}
+function put(r){
+  var c={};for(var k in r)if(k!=="id")c[k]=r[k];
+  return db.collection("cases").doc(r.id).set(c);
+}
+
+$("fType").innerHTML='<option value="">كل أنواع المشاكل</option>'+TYPES.map(function(t){return '<option>'+esc(t)+'</option>'}).join("");
+
+function render(){
+  var q=val("q"), ft=$("fType").value, fp=$("fPri").value;
+  var open=ROWS.filter(function(r){return r.stage!=="done"});
+  $("stats").innerHTML=[
+    '<div class="stat"><b>'+open.length+'</b><span>حالة مفتوحة</span></div>',
+    '<div class="stat pink"><b>'+ROWS.filter(function(r){return r.stage==="ops"||r.stage==="check"}).length+'</b><span>عند فريق العمليات</span></div>',
+    '<div class="stat alert"><b>'+open.filter(function(r){return r.priority==="عالية"}).length+'</b><span>أولوية عالية</span></div>',
+    '<div class="stat alert"><b>'+open.filter(function(r){return hrs(r.updated)>48}).length+'</b><span>متأخرة أكثر من ٤٨ ساعة</span></div>',
+    '<div class="stat"><b>'+ROWS.filter(function(r){return r.stage==="done"}).length+'</b><span>مقفولة</span></div>'
+  ].join("");
+  var rows=ROWS.filter(function(r){
+    if(ONLY_OPEN&&r.stage==="done")return false;
+    if(ft&&r.type!==ft)return false;
+    if(fp&&r.priority!==fp)return false;
+    if(q&&((r.customer||"")+" "+(r.order||"")+" "+(r.phone||"")).indexOf(q)<0)return false;
+    return true;
+  });
+  $("board").innerHTML=STAGES.map(function(s,i){
+    var items=rows.filter(function(r){return r.stage===s.k}).sort(function(a,b){return (a.updated||0)-(b.updated||0)});
+    var body=items.length?items.map(function(r){
+      var h=hrs(r.updated);
+      return '<button class="card" data-p="'+esc(r.priority||"عادية")+'" data-id="'+esc(r.id)+'">'+
+        '<div class="top"><span class="ord">طلب '+esc(r.order||"—")+'</span>'+
+        (r.priority==="عالية"?'<span class="pill red">عالية</span>':'<span class="pill">'+esc(r.priority||"عادية")+'</span>')+'</div>'+
+        '<div class="nm">'+esc(r.customer||"عميل")+'</div><div class="ty">'+esc(r.type||"")+'</div>'+
+        (s.k!=="done"&&h>24?'<div class="age'+(h>48?" late":"")+'">ساكنة '+h+' ساعة في هذه المرحلة</div>':"")+'</button>';
+    }).join(""):'<p class="empty">'+(i===0?'لا توجد حالات هنا. اضغط «تسجيل حالة جديدة» لإضافة أول شكوى.':'لا توجد حالات في هذه المرحلة.')+'</p>';
+    return '<section class="col"><div class="col-h"><span class="step">'+(i+1)+'</span><h2>'+esc(s.n)+'</h2><span class="cnt">'+items.length+'</span></div><p class="who">'+esc(s.who)+'</p>'+body+'</section>';
+  }).join("");
+  Array.prototype.forEach.call(document.querySelectorAll(".card"),function(b){
+    b.addEventListener("click",function(){openCase(b.getAttribute("data-id"))});
+  });
+}
+
+$("addBtn").onclick=function(){
+  $("dlgBody").innerHTML='<h3>تسجيل حالة جديدة</h3><p class="hint">تملأها خدمة العملاء أثناء المكالمة أو بعدها مباشرة.</p>'+
+   '<div class="row2"><div><label for="f_order">رقم الطلب</label><input id="f_order"></div>'+
+   '<div><label for="f_customer">اسم العميل</label><input id="f_customer"></div></div>'+
+   '<div class="row2"><div><label for="f_phone">رقم التواصل</label><input id="f_phone" inputmode="tel"></div>'+
+   '<div><label for="f_type">نوع المشكلة</label><select id="f_type">'+TYPES.map(function(t){return '<option>'+esc(t)+'</option>'}).join("")+'</select></div></div>'+
+   '<div><label for="f_priority">الأولوية</label><select id="f_priority"><option>عادية</option><option>متوسطة</option><option>عالية</option></select></div>'+
+   '<label for="f_details">ما ذكره العميل</label><textarea id="f_details"></textarea>'+
+   '<label for="f_want">المطلوب من العميل</label><textarea id="f_want" placeholder="استبدال، تعويض، تعديل عنوان، استرجاع المبلغ..."></textarea>'+
+   '<p class="err" id="err" hidden>اكتب على الأقل اسم العميل أو رقم الطلب.</p>'+
+   '<div class="acts"><button class="btn" id="b1">حفظ وتحويل للعمليات</button><button class="btn ghost" id="b2">حفظ كمسودة</button><button class="btn ghost" id="bx">إلغاء</button></div>';
+  $("dlg").showModal();
+  $("bx").onclick=function(){$("dlg").close()};
+  function mk(stage){
+    if(!val("f_customer")&&!val("f_order")){$("err").hidden=false;return}
+    var rec={id:"c"+Date.now().toString(36)+Math.floor(Math.random()*900+100),
+      order:val("f_order"),customer:val("f_customer"),phone:val("f_phone"),type:val("f_type"),
+      priority:val("f_priority"),agent:ME,details:val("f_details"),want:val("f_want"),decision:"",
+      stage:stage,created:Date.now(),updated:Date.now(),
+      log:[{t:Date.now(),by:ME,a:stage==="ops"?"تسجيل الحالة وتحويلها للعمليات":"تسجيل الحالة كمسودة"}]};
+    $("dlg").close();put(rec);
+  }
+  $("b1").onclick=function(){mk("ops")};
+  $("b2").onclick=function(){mk("new")};
+};
+
+function openCase(id){
+  var r=null;for(var j=0;j<ROWS.length;j++)if(ROWS[j].id===id)r=ROWS[j];
+  if(!r)return;
+  var i=sIdx(r.stage), s=STAGES[i];
+  $("dlgBody").innerHTML='<h3>طلب '+or(r.order)+' · '+or(r.customer)+'</h3><p class="hint">'+esc(s.who)+'</p>'+
+   '<div class="flow">'+STAGES.map(function(x,k){return '<i class="'+(k<i?"past":k===i?"on":"")+'">'+(k+1)+' · '+esc(x.n)+'</i>'}).join("")+'</div>'+
+   '<div class="meta">'+
+     '<div><span>نوع المشكلة</span><b>'+or(r.type)+'</b></div>'+
+     '<div><span>الأولوية</span><b>'+or(r.priority)+'</b></div>'+
+     '<div><span>رقم التواصل</span><b>'+or(r.phone)+'</b></div>'+
+     '<div><span>ما ذكره العميل</span><b>'+or(r.details)+'</b></div>'+
+     '<div><span>المطلوب</span><b>'+or(r.want)+'</b></div>'+
+     '<div><span>القرار</span><b>'+or(r.decision)+'</b></div>'+
+     '<div><span>تاريخ التسجيل</span><b>'+fmt(r.created)+'</b></div>'+
+     '<div><span>آخر تحديث</span><b>'+fmt(r.updated)+'</b></div></div>'+
+   ((i===2||i===3)?'<label for="f_dec">قرار العمليات</label><textarea id="f_dec" placeholder="تعويض بقيمة…، استبدال المنتج، إعادة شحن، رفض مع ذكر السبب">'+esc(r.decision||"")+'</textarea>':"")+
+   '<label for="f_nt">ملاحظة تُضاف للسجل</label><input id="f_nt" placeholder="اختياري">'+
+   '<div class="acts">'+
+     (i<4?'<button class="btn" id="fwd">'+esc(s.act)+'</button>':'<button class="btn turq" id="reopen">إعادة فتح الحالة</button>')+
+     '<button class="btn ghost" id="note">إضافة ملاحظة فقط</button>'+
+     (i>0&&i<4?'<button class="btn ghost" id="back">رجوع مرحلة</button>':"")+
+     '<button class="btn ghost" id="bx">إغلاق</button></div>'+
+   '<div class="timeline"><h4>سجل الحالة</h4><ul>'+
+     (r.log||[]).slice().reverse().map(function(l){return '<li><b>'+esc(l.a)+'</b><br>'+fmt(l.t)+(l.by?' — '+esc(l.by):"")+'</li>'}).join("")+'</ul></div>';
+  $("dlg").showModal();
+  $("bx").onclick=function(){$("dlg").close()};
+  function commit(action,stage){
+    var d=$("f_dec"); if(d)r.decision=d.value.trim();
+    var nt=val("f_nt");
+    if(stage!=null)r.stage=stage;
+    r.updated=Date.now();r.agent=ME;
+    r.log=(r.log||[]).concat([{t:Date.now(),by:ME,a:action+(nt?" — "+nt:"")}]);
+    $("dlg").close();put(r);
+  }
+  if($("fwd"))$("fwd").onclick=function(){commit("انتقال إلى: "+STAGES[i+1].n,STAGES[i+1].k)};
+  if($("reopen"))$("reopen").onclick=function(){commit("إعادة فتح الحالة","check")};
+  if($("back"))$("back").onclick=function(){commit("رجوع إلى: "+STAGES[i-1].n,STAGES[i-1].k)};
+  $("note").onclick=function(){var nt=val("f_nt");commit(nt?"ملاحظة: "+nt:"تحديث البيانات",null)};
+}
+
+$("expBtn").onclick=function(){
+  var hdr=["رقم الطلب","اسم العميل","رقم التواصل","نوع المشكلة","الأولوية","المرحلة","ما ذكره العميل","المطلوب","القرار","المسؤول","تاريخ التسجيل","آخر تحديث"];
+  var lines=[hdr.join(",")];
+  ROWS.forEach(function(r){
+    lines.push([r.order,r.customer,r.phone,r.type,r.priority,STAGES[sIdx(r.stage)].n,r.details,r.want,r.decision,r.agent,fmt(r.created),fmt(r.updated)]
+      .map(function(x){return '"'+String(x==null?"":x).replace(/"/g,'""')+'"'}).join(","));
+  });
+  var a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob(["﻿"+lines.join("\r\n")],{type:"text/csv;charset=utf-8"}));
+  a.download="smooth-cases.csv";document.body.appendChild(a);a.click();
+  setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},1500);
+};
+["q","fType","fPri"].forEach(function(id){$(id).addEventListener("input",render)});
+$("vOpen").onclick=function(){ONLY_OPEN=true;$("vOpen").setAttribute("aria-pressed","true");$("vAll").setAttribute("aria-pressed","false");render()};
+$("vAll").onclick=function(){ONLY_OPEN=false;$("vAll").setAttribute("aria-pressed","true");$("vOpen").setAttribute("aria-pressed","false");render()};
+</script>
+</body>
+</html>
